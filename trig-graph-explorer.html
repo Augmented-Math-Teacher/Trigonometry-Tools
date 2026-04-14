@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trig Graph Explorer</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#fff;--bg2:#f5f4f1;--bg3:#eceae5;
+  --t1:#1a1a1a;--t2:#555550;--t3:#99998a;
+  --b1:rgba(0,0,0,.09);--b2:rgba(0,0,0,.18);
+  --blue-bg:#e6f0fc;--blue-t:#1a55a0;--blue-b:#a0c0f0;
+  --ora-bg:#fef2e0;--ora-t:#8a5000;--ora-b:#f0c060;
+  --grn-bg:#e6f5ec;--grn-t:#1a6030;--grn-b:#80cc99;
+  --red-bg:#fde8e8;--red-t:#991a1a;--red-b:#f0a0a0;
+  --pur-bg:#f0ecfe;--pur-t:#4a20a0;--pur-b:#b8a0f0;
+  --tel-bg:#e0f6f4;--tel-t:#0d6060;--tel-b:#70c8c0;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 4px 14px rgba(0,0,0,.05);
+  --r:10px;--rl:14px;--rxl:18px;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1c1c1e;--bg2:#2c2c2e;--bg3:#3a3a3c;
+  --t1:#f2f2f7;--t2:#aeaeb2;--t3:#6e6e73;
+  --b1:rgba(255,255,255,.09);--b2:rgba(255,255,255,.18);
+  --blue-bg:#152840;--blue-t:#70b0f0;--blue-b:#2a4a70;
+  --ora-bg:#302000;--ora-t:#f0b040;--ora-b:#604000;
+  --grn-bg:#0c2618;--grn-t:#50c070;--grn-b:#185030;
+  --red-bg:#260c0c;--red-t:#f07070;--red-b:#501818;
+  --pur-bg:#1e1040;--pur-t:#a888f8;--pur-b:#402090;
+  --tel-bg:#062020;--tel-t:#40c0b8;--tel-b:#106060;
+  --sh:0 1px 3px rgba(0,0,0,.25),0 4px 14px rgba(0,0,0,.2);
+}}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;background:var(--bg2);color:var(--t1);min-height:100vh;padding:1.5rem 1rem 4rem;display:flex;justify-content:center}
+.app{width:100%;max-width:900px}
+h1{font-size:19px;font-weight:600;margin-bottom:1.25rem;letter-spacing:-.3px}
+
+/* Mode tabs */
+.tabs{display:flex;gap:0;background:var(--bg);border:0.5px solid var(--b1);border-radius:var(--r);overflow:hidden;margin-bottom:1rem;box-shadow:var(--sh)}
+.tab{flex:1;padding:10px 0;font-size:13px;font-weight:500;text-align:center;cursor:pointer;color:var(--t3);border:none;background:none;font-family:inherit;transition:all .15s;border-right:0.5px solid var(--b1)}
+.tab:last-child{border-right:none}
+.tab.active{background:var(--blue-bg);color:var(--blue-t)}
+.tab:hover:not(.active){background:var(--bg3);color:var(--t2)}
+
+/* Toolbar */
+.toolbar{background:var(--bg);border:0.5px solid var(--b1);border-radius:var(--rl);padding:.65rem 1rem;margin-bottom:1rem;display:flex;flex-wrap:wrap;gap:7px 10px;align-items:center;box-shadow:var(--sh)}
+.t-sec{display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.t-lbl{font-size:11px;color:var(--t3);font-weight:500;white-space:nowrap}
+.t-div{width:.5px;height:22px;background:var(--b1);flex-shrink:0}
+.pill{font-size:11px;font-weight:500;padding:3px 9px;border-radius:999px;border:.5px solid var(--b1);background:var(--bg2);color:var(--t3);cursor:pointer;user-select:none;transition:all .13s}
+.pill:hover{background:var(--bg3);color:var(--t2)}
+.pill.on.fn   {background:var(--blue-bg);border-color:var(--blue-b);color:var(--blue-t)}
+.pill.on.feat {background:var(--pur-bg); border-color:var(--pur-b); color:var(--pur-t)}
+.pill.on.unit {background:var(--tel-bg); border-color:var(--tel-b); color:var(--tel-t)}
+.tbtn{font-size:11px;padding:3px 10px;border-radius:6px;border:.5px solid var(--b1);background:var(--bg2);color:var(--t2);cursor:pointer;font-family:inherit;transition:background .12s}
+.tbtn:hover{background:var(--bg3)}
+.tbtn.danger{border-color:var(--red-b);color:var(--red-t)}
+.tbtn.danger:hover{background:var(--red-bg)}
+
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:1rem}
+.stat{background:var(--bg);border:.5px solid var(--b1);border-radius:var(--r);padding:.55rem .5rem;text-align:center;box-shadow:var(--sh)}
+.sv{font-size:20px;font-weight:600;line-height:1}
+.sl{font-size:10px;color:var(--t3);margin-top:2px}
+
+/* Main card */
+.card{background:var(--bg);border:.5px solid var(--b1);border-radius:var(--rxl);padding:1.25rem;box-shadow:var(--sh);margin-bottom:.75rem}
+
+/* Equation display */
+.eq-display{font-size:22px;font-weight:600;color:var(--t1);margin-bottom:1rem;letter-spacing:-.3px;line-height:1.3}
+.eq-small{font-size:14px;color:var(--t3);font-weight:400;display:block;margin-top:3px}
+
+/* Canvas */
+canvas{display:block;width:100%;border-radius:8px;border:.5px solid var(--b1)}
+
+/* Answer / reveal */
+.reveal-cover{background:var(--bg2);border:1.5px dashed var(--b1);border-radius:var(--r);padding:.85rem;text-align:center;cursor:pointer;font-size:13px;color:var(--t3);user-select:none;transition:all .12s;margin-top:.75rem}
+.reveal-cover:hover{background:var(--bg3);color:var(--t2)}
+.answer-box{display:none;background:var(--grn-bg);border:.5px solid var(--grn-b);border-radius:var(--r);padding:1rem;margin-top:.75rem}
+.ans-eq{font-size:20px;font-weight:600;color:var(--grn-t);margin-bottom:.5rem}
+.ans-parts{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-top:.6rem}
+.ans-part{background:var(--bg);border:.5px solid var(--b1);border-radius:7px;padding:.5rem .75rem}
+.ap-lbl{font-size:10px;color:var(--t3);font-weight:500;margin-bottom:2px}
+.ap-val{font-size:14px;font-weight:600;color:var(--t1)}
+
+/* Grade row */
+.grade-row{display:none;gap:8px;margin-top:.75rem}
+.gb{flex:1;padding:7px 0;font-size:13px;font-weight:500;font-family:inherit;border-radius:var(--r);cursor:pointer;border:.5px solid;transition:opacity .12s}
+.gb:hover{opacity:.8}
+.gb.yes{background:var(--grn-bg);border-color:var(--grn-b);color:var(--grn-t)}
+.gb.no {background:var(--red-bg);border-color:var(--red-b);color:var(--red-t)}
+
+/* Next btn */
+.next-btn{width:100%;margin-top:.75rem;padding:9px 0;font-size:14px;font-family:inherit;font-weight:500;background:var(--blue-bg);border:.5px solid var(--blue-b);color:var(--blue-t);border-radius:var(--r);cursor:pointer;transition:opacity .12s}
+.next-btn:hover{opacity:.8}
+
+/* Interactive plotter section */
+.plotter-section{display:none;margin-top:.75rem}
+.plotter-section.open{display:block}
+.plotter-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:.5rem}
+.ptbtn{font-size:12px;padding:4px 10px;border-radius:6px;border:.5px solid var(--b1);background:var(--bg2);color:var(--t2);cursor:pointer;font-family:inherit}
+.ptbtn:hover{background:var(--bg3)}
+.ptbtn.active-tool{background:var(--blue-bg);border-color:var(--blue-b);color:var(--blue-t)}
+
+/* Flash */
+@keyframes fg{0%,100%{background:var(--bg)}40%{background:var(--grn-bg)}}
+@keyframes fr{0%,100%{background:var(--bg)}40%{background:var(--red-bg)}}
+.flash-g{animation:fg .45s ease}
+.flash-r{animation:fr .45s ease}
+
+@media(max-width:520px){.stats{grid-template-columns:repeat(2,1fr)}.ans-parts{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+<h1>Trig Graph Explorer</h1>
+
+<!-- Mode tabs -->
+<div class="tabs">
+  <button class="tab active" onclick="setMode('identify')">&#128269; Identify the Equation</button>
+  <button class="tab" onclick="setMode('graph')">&#128393; Graph from Equation</button>
+</div>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <div class="t-sec">
+    <span class="t-lbl">Functions:</span>
+    <span class="pill on fn" data-fn="sin"  onclick="togglePill(this,'fns')">sin</span>
+    <span class="pill on fn" data-fn="cos"  onclick="togglePill(this,'fns')">cos</span>
+    <span class="pill    fn" data-fn="tan"  onclick="togglePill(this,'fns')">tan</span>
+    <span class="pill    fn" data-fn="csc"  onclick="togglePill(this,'fns')">csc</span>
+    <span class="pill    fn" data-fn="sec"  onclick="togglePill(this,'fns')">sec</span>
+    <span class="pill    fn" data-fn="cot"  onclick="togglePill(this,'fns')">cot</span>
+  </div>
+  <div class="t-div"></div>
+  <div class="t-sec">
+    <span class="t-lbl">Vary:</span>
+    <span class="pill on feat" data-feat="amp"   onclick="togglePill(this,'feats')">Amplitude</span>
+    <span class="pill on feat" data-feat="mid"   onclick="togglePill(this,'feats')">Midline</span>
+    <span class="pill on feat" data-feat="per"   onclick="togglePill(this,'feats')">Period</span>
+    <span class="pill on feat" data-feat="phase" onclick="togglePill(this,'feats')">Phase shift</span>
+  </div>
+  <div class="t-div"></div>
+  <div class="t-sec">
+    <span class="t-lbl">Units:</span>
+    <span class="pill on unit" id="u-deg" onclick="setUnit('deg')">Degrees</span>
+    <span class="pill    unit" id="u-rad" onclick="setUnit('rad')">Radians</span>
+  </div>
+  <div class="t-div"></div>
+  <div class="t-sec" style="margin-left:auto">
+    <button class="tbtn danger" onclick="resetStats()">Reset</button>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="stats">
+  <div class="stat"><div class="sv" id="sc">0</div><div class="sl">correct</div></div>
+  <div class="stat"><div class="sv" id="sa">0</div><div class="sl">asked</div></div>
+  <div class="stat"><div class="sv" id="ss">0</div><div class="sl">streak</div></div>
+  <div class="stat"><div class="sv" id="sp">&#8212;</div><div class="sl">accuracy</div></div>
+</div>
+
+<!-- ══ IDENTIFY MODE ══ -->
+<div id="mode-identify">
+  <div class="card" id="id-card">
+    <canvas id="id-canvas" height="340"></canvas>
+    <div class="reveal-cover" id="id-cover" onclick="revealIdentify()">Click to reveal equation</div>
+    <div class="answer-box" id="id-answer">
+      <div class="ans-eq" id="id-eq-text"></div>
+      <div class="ans-parts" id="id-parts"></div>
+    </div>
+    <div class="grade-row" id="id-grade">
+      <button class="gb yes" onclick="grade(true)">&#10003;&nbsp;Got it</button>
+      <button class="gb no"  onclick="grade(false)">&#10007;&nbsp;Missed it</button>
+    </div>
+    <button class="next-btn" onclick="nextQ()">Next question &#8594;</button>
+  </div>
+</div>
+
+<!-- ══ GRAPH MODE ══ -->
+<div id="mode-graph" style="display:none">
+  <div class="card" id="gr-card">
+    <div class="eq-display" id="gr-eq"></div>
+
+    <!-- Graph mode axis controls -->
+    <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:.6rem;">
+      <span class="t-lbl">Show:</span>
+      <span class="pill on teal" id="gr-show-x" onclick="toggleGrAxis('x')">x-axis values</span>
+      <span class="pill on teal" id="gr-show-y" onclick="toggleGrAxis('y')">y-axis values</span>
+    </div>
+
+    <canvas id="gr-blank" height="260"></canvas>
+    <div class="reveal-cover" id="gr-cover" onclick="revealGraph()">Click to reveal graph</div>
+    <div class="answer-box" id="gr-answer" style="padding-bottom:.5rem">
+      <canvas id="gr-reveal-canvas" height="260" style="border-radius:8px;border:.5px solid var(--grn-b)"></canvas>
+      <div style="margin-top:.6rem">
+        <button class="ptbtn" id="plotter-toggle" onclick="togglePlotter()">&#9998; Open interactive plotter</button>
+      </div>
+    </div>
+    <div class="plotter-section" id="plotter-section">
+      <div class="plotter-toolbar">
+        <span style="font-size:12px;color:var(--t3);font-weight:500">Draw your graph:</span>
+        <button class="ptbtn active-tool" id="tool-draw" onclick="setTool('draw')">&#9998; Draw</button>
+        <button class="ptbtn" id="tool-erase" onclick="setTool('erase')">&#9003; Erase</button>
+        <button class="ptbtn" onclick="clearPlotter()">Clear all</button>
+      </div>
+      <canvas id="gr-plotter" height="260" style="cursor:crosshair;touch-action:none"></canvas>
+    </div>
+    <div class="grade-row" id="gr-grade">
+      <button class="gb yes" onclick="grade(true)">&#10003;&nbsp;Got it</button>
+      <button class="gb no"  onclick="grade(false)">&#10007;&nbsp;Missed it</button>
+    </div>
+    <button class="next-btn" onclick="nextQ()">Next question &#8594;</button>
+  </div>
+</div>
+</div><!-- .app -->
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────
+var mode = 'identify';
+var unit = 'deg';
+var fns   = {sin:1,cos:1};
+var feats = {amp:1,mid:1,per:1,phase:1};
+var correct=0,total=0,streak=0;
+var curFn,curA,curD,curB,curC,curCycles,curIntPeriod; // y = A·fn(Bx - C) + D
+var revealed=false;
+var plotTool='draw';
+var plotDrawing=false;
+var plotLastX=null,plotLastY=null;
+var grShowX=true, grShowY=true; // axis label toggles for graph mode
+
+// ── Number pools ─────────────────────────────────────────────────────
+var AMPS  = [-3,-2,-1,1,2,3];
+var MIDS  = [-2,-1,0,1,2];
+
+// Degree mode: integer periods in degrees
+var PERIODS_DEG = [60, 90, 120, 180, 360, 720];
+// Radian mode: integer periods → B = 2π/T
+// e.g. T=4 → B=π/2, T=6 → B=π/3, T=8 → B=π/4, T=12 → B=π/6
+// Also include π-period (T=2π≈6.28) and 2π-period (T=2π, B=1)
+var PERIODS_RAD_INT = [2, 3, 4, 6, 8, 10, 12]; // integer periods → clean x labels
+var PERIODS_RAD_PI  = [1, 2];                    // B=1 (T=2π) and B=2 (T=π) → π labels
+
+// How many cycles to show (including sub-cycle for inference)
+var CYCLES = [0.25, 0.5, 0.75, 1, 1.5, 2];
+
+// Phase shifts
+var PHASE_DEG = [0, 30, 45, 60, 90, -30, -45, -60, -90];
+var PHASE_RAD_PI  = [0, Math.PI/6, Math.PI/4, Math.PI/3, Math.PI/2,
+                     -Math.PI/6, -Math.PI/4, -Math.PI/3, -Math.PI/2];
+var PHASE_RAD_INT = [0, 0.5, 1, 1.5, 2, -0.5, -1, -1.5, -2]; // phase in plain numbers
+
+function pick(arr){return arr[Math.floor(Math.random()*arr.length)]}
+function pickFn(){
+  var k=Object.keys(fns); return k[Math.floor(Math.random()*k.length)];
+}
+
+// ── Generate question ─────────────────────────────────────────────────
+function generateQ(){
+  curFn     = pickFn();
+  curCycles = pick(CYCLES);
+
+  if(unit==='deg'){
+    var T = feats.per ? pick(PERIODS_DEG) : 360;
+    curB  = 360/T;  // B = 360/T for degrees
+    curC  = feats.phase ? pick(PHASE_DEG) : 0;
+    curIntPeriod = false;
+  } else {
+    // 50/50 chance: integer period (clean x labels) vs π period
+    var useInt = (Math.random()<0.5);
+    if(useInt){
+      var T = feats.per ? pick(PERIODS_RAD_INT) : 4;
+      curB  = 2*PI/T;          // B = 2π/T → period = T (integer)
+      curC  = feats.phase ? pick(PHASE_RAD_INT) : 0;
+      curIntPeriod = true;
+    } else {
+      var Bval = feats.per ? pick(PERIODS_RAD_PI) : 1;
+      curB  = Bval;            // period = 2π/B (π-based)
+      curC  = feats.phase ? pick(PHASE_RAD_PI) : 0;
+      curIntPeriod = false;
+    }
+  }
+
+  // Pick A and D so that |A| + |D| <= 9
+  var tries=0;
+  do {
+    curA = feats.amp ? pick(AMPS) : 1;
+    curD = feats.mid ? pick(MIDS) : 0;
+    tries++;
+  } while(Math.abs(curA)+Math.abs(curD) > 9 && tries<20);
+  if(Math.abs(curA)+Math.abs(curD) > 9){ curA=1; curD=0; }
+}
+
+// ── Trig eval ─────────────────────────────────────────────────────────
+function evalFn(fn, theta){
+  // theta in radians always
+  var v;
+  switch(fn){
+    case 'sin': v=Math.sin(theta);break;
+    case 'cos': v=Math.cos(theta);break;
+    case 'tan': v=Math.tan(theta);break;
+    case 'csc': v=1/Math.sin(theta);break;
+    case 'sec': v=1/Math.cos(theta);break;
+    case 'cot': v=1/Math.tan(theta);break;
+    default: v=0;
+  }
+  return v;
+}
+
+// ── Format helpers ────────────────────────────────────────────────────
+var PI=Math.PI;
+var RAD_NAMES={
+  0:'0',
+  [PI/6]:'π/6',    [PI/4]:'π/4',    [PI/3]:'π/3',    [PI/2]:'π/2',
+  [PI]:'π',         [3*PI/2]:'3π/2', [2*PI]:'2π',      [3*PI]:'3π',   [4*PI]:'4π',
+  [-PI/6]:'-π/6',  [-PI/4]:'-π/4',  [-PI/3]:'-π/3',  [-PI/2]:'-π/2',
+  [-PI]:'-π',      [-3*PI/2]:'-3π/2',[-2*PI]:'-2π',
+};
+function fmtRad(v){
+  // Named π values first
+  for(var k in RAD_NAMES){
+    if(Math.abs(parseFloat(k)-v)<1e-9) return RAD_NAMES[k];
+  }
+  // Integer → plain number
+  if(Math.abs(v-Math.round(v))<1e-9) return ''+Math.round(v);
+  // Half-integer → one decimal
+  if(Math.abs(v*2-Math.round(v*2))<1e-9) return (Math.round(v*2)/2).toFixed(1);
+  // Quarter-integer → one decimal
+  if(Math.abs(v*4-Math.round(v*4))<1e-9) return (Math.round(v*4)/4).toFixed(2);
+  return v.toFixed(2);
+}
+function fmtAngle(v){
+  if(unit==='rad') return fmtRad(v);
+  return v%1===0 ? v+'°' : v.toFixed(1)+'°';
+}
+function fmtB(b){
+  // Check if B = 2π/T for a nice integer T — show as fraction of π
+  var T = 2*PI/b;
+  if(Math.abs(T-Math.round(T))<1e-9){
+    var Ti = Math.round(T);
+    if(Ti===2) return 'π';
+    return '2π/'+Ti;
+  }
+  if(Math.abs(b-Math.PI/2)<1e-9) return 'π/2';
+  if(Math.abs(b-Math.PI/3)<1e-9) return 'π/3';
+  if(Math.abs(b-Math.PI/4)<1e-9) return 'π/4';
+  if(Math.abs(b-Math.PI/6)<1e-9) return 'π/6';
+  if(b===0.5) return '½';
+  return b%1===0 ? ''+b : b.toFixed(2);
+}
+
+function buildEquation(fn,A,B,C,D,forDisplay){
+  // y = A·fn(Bx - C) + D
+  var aStr;
+  if(A===1)       aStr='';
+  else if(A===-1) aStr='-';
+  else            aStr=''+A;
+  var bStr,inner;
+  if(unit==='deg'){
+    bStr = B===1 ? 'x' : (fmtB(B)+'x');
+    var cStr = Math.abs(C)===0 ? '' : (C>0 ? ' - '+C+'°' : ' + '+Math.abs(C)+'°');
+    inner = bStr+cStr;
+  } else {
+    bStr = B===1 ? 'x' : (fmtB(B)+'x');
+    var cAbs=Math.abs(C);
+    var cStr = cAbs<1e-9 ? '' : (C>0 ? ' - '+fmtRad(C) : ' + '+fmtRad(Math.abs(C)));
+    inner = bStr+cStr;
+  }
+  var dStr = D===0 ? '' : (D>0?' + '+D:' - '+Math.abs(D));
+  return 'y = '+aStr+fn+'('+inner+')'+dStr;
+}
+
+// ── Canvas drawing ────────────────────────────────────────────────────
+function getColors(){
+  var dark = window.matchMedia('(prefers-color-scheme:dark)').matches;
+  return {
+    bg:     dark?'#1c1c1e':'#ffffff',
+    grid:   dark?'rgba(255,255,255,.08)':'rgba(0,0,0,.07)',
+    axis:   dark?'rgba(255,255,255,.25)':'rgba(0,0,0,.25)',
+    label:  dark?'rgba(255,255,255,.4)':'rgba(0,0,0,.38)',
+    curve:  '#2a7fd4',
+    mid:    dark?'rgba(255,160,40,.5)':'rgba(180,100,0,.4)',
+    asym:   dark?'rgba(255,100,100,.35)':'rgba(200,0,0,.25)',
+  };
+}
+
+function drawGraph(canvas, fn, A, B, C, D, showGrid, xMinOverride){
+  var ctx=canvas.getContext('2d');
+  var dpr=window.devicePixelRatio||1;
+  var CW=canvas.width/dpr, CH=canvas.height/dpr;
+  var col=getColors();
+
+  var mL=44, mR=18, mT=16, mB=30;
+  var W=CW-mL-mR, H=CH-mT-mB;
+
+  // x range: use override if provided, otherwise curCycles from xMin=0
+  var period = unit==='deg' ? 360/B : 2*PI/B;
+  var numCycles = (typeof curCycles!=='undefined') ? curCycles : 1;
+  var xMin = (xMinOverride!==undefined) ? xMinOverride : 0;
+  var xMax = (xMinOverride!==undefined) ? period : period*numCycles;
+  var xRange=xMax-xMin;
+
+  // ── y range: fixed -10 to 10 always ──
+  var yMin=-10, yMax=10, yRange=20;
+
+  // ── Coordinate helpers ──
+  function px(x){ return mL+(x-xMin)/xRange*W; }
+  function py(y){ return mT+(1-(y-yMin)/yRange)*H; }
+
+  ctx.save();
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,CW,CH);
+  ctx.fillStyle=col.bg;
+  ctx.fillRect(0,0,CW,CH);
+
+  // ── Grid lines (every 1 unit on y, quarter-period on x) ──
+  ctx.strokeStyle=col.grid;
+  ctx.lineWidth=0.5;
+  var xStep=period/4; // quarter-period marks
+  for(var xv=xMin; xv<=xMax+1e-9; xv+=xStep){
+    ctx.beginPath();ctx.moveTo(px(xv),mT);ctx.lineTo(px(xv),mT+H);ctx.stroke();
+  }
+  for(var yv=yMin; yv<=yMax+1e-9; yv+=1){
+    // thicker line at every 5
+    ctx.lineWidth = (yv%5===0) ? 0.8 : 0.35;
+    ctx.beginPath();ctx.moveTo(mL,py(yv));ctx.lineTo(mL+W,py(yv));ctx.stroke();
+  }
+  ctx.lineWidth=0.5;
+
+  // ── Midline dashed ──
+  if(Math.abs(D)>1e-9){
+    ctx.strokeStyle=col.mid;
+    ctx.lineWidth=1.2;
+    ctx.setLineDash([6,4]);
+    ctx.beginPath();ctx.moveTo(mL,py(D));ctx.lineTo(mL+W,py(D));ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // ── Axes ──
+  ctx.strokeStyle=col.axis;
+  ctx.lineWidth=1.2;
+  // y-axis at x=0 if in range, else at left edge
+  var yAxisX = (xMin<=0 && xMax>=0) ? px(0) : mL;
+  ctx.beginPath();ctx.moveTo(yAxisX,mT);ctx.lineTo(yAxisX,mT+H);ctx.stroke();
+  // x-axis at y=0
+  ctx.beginPath();ctx.moveTo(mL,py(0));ctx.lineTo(mL+W,py(0));ctx.stroke();
+
+  // ── Tick marks ──
+  ctx.strokeStyle=col.axis;
+  var tk=5;
+  // x ticks at quarter-period
+  ctx.lineWidth=1;
+  for(var xv=xMin; xv<=xMax+1e-9; xv+=xStep){
+    var tx=px(xv);
+    ctx.beginPath();ctx.moveTo(tx,py(0)-tk);ctx.lineTo(tx,py(0)+tk);ctx.stroke();
+  }
+  // y ticks on y-axis
+  for(var yv=yMin; yv<=yMax+1e-9; yv+=1){
+    var ty=py(yv);
+    var tlen = (yv%5===0) ? tk+1 : tk-1;
+    ctx.beginPath();ctx.moveTo(yAxisX-tlen,ty);ctx.lineTo(yAxisX+tlen,ty);ctx.stroke();
+  }
+
+  // ── X labels (at quarter-period marks) ──
+  ctx.fillStyle=col.label;
+  ctx.font='10px -apple-system,sans-serif';
+  ctx.textAlign='center';
+  ctx.textBaseline='top';
+  for(var xv=xMin; xv<=xMax+1e-9; xv+=xStep){
+    if(Math.abs(xv)<1e-9) continue;
+    var lbl = unit==='rad' ? fmtRad(xv) : (Math.round(xv)+'°');
+    ctx.fillText(lbl, px(xv), py(0)+8);
+  }
+  // 0 label left of y-axis
+  ctx.textAlign='right';
+  ctx.textBaseline='top';
+  ctx.fillText('0', yAxisX-4, py(0)+4);
+
+  // ── Y labels (every 2 units, left of y-axis) ──
+  ctx.textAlign='right';
+  ctx.textBaseline='middle';
+  for(var yv=yMin; yv<=yMax+1e-9; yv+=2){
+    if(Math.abs(yv)<1e-9) continue;
+    ctx.fillText(yv, yAxisX-6, py(yv));
+  }
+  ctx.fillText('0', yAxisX-6, py(0));
+
+  // ── Plot curve (clipped to plot area) ──
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(mL,mT,W,H);
+  ctx.clip();
+
+  ctx.strokeStyle=col.curve;
+  ctx.lineWidth=2.4;
+  ctx.lineJoin='round';
+  ctx.setLineDash([]);
+
+  var steps=Math.ceil(W*3);
+  var prevY=null;
+  ctx.beginPath();
+  for(var i=0;i<=steps;i++){
+    var xv2=xMin+i/steps*xRange;
+    var theta = unit==='deg' ? (B*xv2-C)*PI/180 : B*xv2-C;
+    var yv2=A*evalFn(fn,theta)+D;
+    var valid=isFinite(yv2)&&Math.abs(yv2)<1000;
+    if(!valid){ ctx.stroke(); ctx.beginPath(); prevY=null; continue; }
+    if(prevY!==null && Math.abs(yv2-prevY)>yRange*0.75){
+      ctx.stroke(); ctx.beginPath(); ctx.moveTo(px(xv2),py(yv2));
+    } else if(prevY===null){
+      ctx.moveTo(px(xv2),py(yv2));
+    } else {
+      ctx.lineTo(px(xv2),py(yv2));
+    }
+    prevY=yv2;
+  }
+  ctx.stroke();
+  ctx.restore();
+  ctx.restore();
+}
+
+function drawBlankGrid(canvas){
+  var ctx=canvas.getContext('2d');
+  var dpr=window.devicePixelRatio||1;
+  var CW=canvas.width/dpr, CH=canvas.height/dpr;
+  var col=getColors();
+
+  var mL=44, mR=18, mT=16, mB=30;
+  var W=CW-mL-mR, H=CH-mT-mB;
+
+  // Fixed window: -T to +T, giving 4 quarter-period ticks each side of 0
+  var period = unit==='deg' ? 360/curB : 2*PI/curB;
+  var xMin=-period, xMax=period, xRange=xMax-xMin;
+  var yMin=-10, yMax=10, yRange=20;
+
+  function px(x){ return mL+(x-xMin)/xRange*W; }
+  function py(y){ return mT+(1-(y-yMin)/yRange)*H; }
+
+  ctx.save();
+  ctx.scale(dpr,dpr);
+  ctx.clearRect(0,0,CW,CH);
+  ctx.fillStyle=col.bg;
+  ctx.fillRect(0,0,CW,CH);
+
+  // Grid — vertical lines every quarter-period
+  var xStep=period/4;
+  for(var xv=xMin; xv<=xMax+1e-9; xv+=xStep){
+    ctx.strokeStyle=col.grid;
+    ctx.lineWidth=(Math.abs(xv)<1e-9)?0:0.5;
+    ctx.beginPath();ctx.moveTo(px(xv),mT);ctx.lineTo(px(xv),mT+H);ctx.stroke();
+  }
+  // Grid — horizontal lines every 1 unit
+  for(var yv=yMin; yv<=yMax+1e-9; yv+=1){
+    ctx.strokeStyle=col.grid;
+    ctx.lineWidth=(yv%5===0)?0.8:0.35;
+    ctx.beginPath();ctx.moveTo(mL,py(yv));ctx.lineTo(mL+W,py(yv));ctx.stroke();
+  }
+
+  // Axes — y-axis at x=0 (center), x-axis at y=0
+  ctx.strokeStyle=col.axis;
+  ctx.lineWidth=1.2;
+  // y-axis at x=0
+  ctx.beginPath();ctx.moveTo(px(0),mT);ctx.lineTo(px(0),mT+H);ctx.stroke();
+  // x-axis at y=0
+  ctx.beginPath();ctx.moveTo(mL,py(0));ctx.lineTo(mL+W,py(0));ctx.stroke();
+  // left border (for y-label alignment)
+  ctx.strokeStyle=col.grid;
+  ctx.lineWidth=0.5;
+  ctx.beginPath();ctx.moveTo(mL,mT);ctx.lineTo(mL,mT+H);ctx.stroke();
+
+  // Tick marks on x-axis
+  ctx.strokeStyle=col.axis;
+  ctx.lineWidth=1;
+  var tk=5;
+  for(var xv=xMin; xv<=xMax+1e-9; xv+=xStep){
+    ctx.beginPath();ctx.moveTo(px(xv),py(0)-tk);ctx.lineTo(px(xv),py(0)+tk);ctx.stroke();
+  }
+  // Tick marks on y-axis
+  for(var yv=yMin; yv<=yMax+1e-9; yv+=1){
+    var tlen=(yv%5===0)?tk+1:tk-1;
+    ctx.beginPath();ctx.moveTo(px(0)-tlen,py(yv));ctx.lineTo(px(0)+tlen,py(yv));ctx.stroke();
+  }
+
+  ctx.fillStyle=col.label;
+  ctx.font='10px -apple-system,sans-serif';
+
+  // X labels — centered on each tick, below x-axis
+  if(grShowX){
+    ctx.textAlign='center';
+    ctx.textBaseline='top';
+    for(var xv=xMin; xv<=xMax+1e-9; xv+=xStep){
+      if(Math.abs(xv)<1e-9) continue; // skip 0 — covered by y label
+      var lbl=unit==='rad'?fmtRad(xv):(Math.round(xv)+'°');
+      ctx.fillText(lbl, px(xv), py(0)+8);
+    }
+  }
+
+  // Y labels — always to the left of the left margin
+  if(grShowY){
+    ctx.textAlign='right';
+    ctx.textBaseline='middle';
+    for(var yv=yMin; yv<=yMax+1e-9; yv+=2){
+      if(Math.abs(yv)<1e-9) continue;
+      ctx.fillText(yv, mL-8, py(yv));
+    }
+    // 0 label at intersection
+    ctx.fillText('0', mL-8, py(0));
+  }
+
+  ctx.restore();
+}
+
+// ── Resize canvases to device pixel ratio ─────────────────────────────
+function sizeCanvas(canvas){
+  var dpr=window.devicePixelRatio||1;
+  var h=parseInt(canvas.getAttribute('data-h')||canvas.getAttribute('height'))||340;
+  // Fix the CSS display size first time only
+  if(!canvas.dataset.sized){
+    var w=canvas.parentElement.clientWidth||800;
+    canvas.dataset.sized='1';
+    canvas.dataset.w=w;
+    canvas.dataset.hpx=h;
+  }
+  var w=parseInt(canvas.dataset.w)||800;
+  var h2=parseInt(canvas.dataset.hpx)||h;
+  canvas.width=Math.round(w*dpr);
+  canvas.height=Math.round(h2*dpr);
+  canvas.style.width=w+'px';
+  canvas.style.height=h2+'px';
+}
+
+// ── Identify mode ─────────────────────────────────────────────────────
+function drawIdentify(){
+  var c=document.getElementById('id-canvas');
+  sizeCanvas(c);
+  drawGraph(c,curFn,curA,curB,curC,curD,true);
+}
+
+function revealIdentify(){
+  document.getElementById('id-cover').style.display='none';
+  var ab=document.getElementById('id-answer');
+  ab.style.display='block';
+  document.getElementById('id-grade').style.display='flex';
+
+  var eq=buildEquation(curFn,curA,curB,curC,curD,true);
+  document.getElementById('id-eq-text').textContent=eq;
+
+  var period=unit==='deg'?360/curB:2*PI/curB;
+  var parts=[
+    {lbl:'Amplitude',val:''+Math.abs(curA)+(curA<0?' (reflected)':'')},
+    {lbl:'Midline',val:'y = '+curD},
+    {lbl:'Period', val: (function(){
+      var T = unit==='deg' ? 360/curB : 2*PI/curB;
+      if(unit==='deg') return Math.round(T)+'°';
+      // Integer period?
+      if(Math.abs(T-Math.round(T))<1e-9) return ''+Math.round(T);
+      return fmtRad(T);
+    })()},
+    {lbl:'Phase shift',val:unit==='deg'?(curC===0?'None':fmtAngle(curC)):(Math.abs(curC)<1e-9?'None':fmtRad(curC))},
+  ];
+  var html='';
+  parts.forEach(function(p){
+    html+='<div class="ans-part"><div class="ap-lbl">'+p.lbl+'</div><div class="ap-val">'+p.val+'</div></div>';
+  });
+  document.getElementById('id-parts').innerHTML=html;
+  revealed=true;
+}
+
+// ── Graph mode ────────────────────────────────────────────────────────
+function drawGraphMode(){
+  var period = unit==='deg' ? 360/curB : 2*PI/curB;
+
+  // Blank grid
+  var cb=document.getElementById('gr-blank');
+  sizeCanvas(cb);
+  drawBlankGrid(cb);
+
+  // Equation display
+  var eq=buildEquation(curFn,curA,curB,curC,curD,true);
+  document.getElementById('gr-eq').textContent=eq;
+
+  // Pre-draw the reveal canvas with same -T to +T window
+  var cr=document.getElementById('gr-reveal-canvas');
+  sizeCanvas(cr);
+  drawGraph(cr,curFn,curA,curB,curC,curD,true,-period);
+
+  // Plotter
+  var cp=document.getElementById('gr-plotter');
+  sizeCanvas(cp);
+  drawBlankGrid(cp);
+}
+
+function revealGraph(){
+  document.getElementById('gr-cover').style.display='none';
+  document.getElementById('gr-answer').style.display='block';
+  document.getElementById('gr-grade').style.display='flex';
+  revealed=true;
+}
+
+function toggleGrAxis(axis){
+  if(axis==='x'){ grShowX=!grShowX; document.getElementById('gr-show-x').classList.toggle('on',grShowX); }
+  else           { grShowY=!grShowY; document.getElementById('gr-show-y').classList.toggle('on',grShowY); }
+  // Redraw blank grid and plotter with new label visibility
+  var cb=document.getElementById('gr-blank');
+  if(cb.dataset.sized) drawBlankGrid(cb);
+  var cp=document.getElementById('gr-plotter');
+  if(cp.dataset.sized && document.getElementById('plotter-section').classList.contains('open')) drawBlankGrid(cp);
+}
+
+// ── Interactive plotter ───────────────────────────────────────────────
+function togglePlotter(){
+  var sec=document.getElementById('plotter-section');
+  var btn=document.getElementById('plotter-toggle');
+  var open=sec.classList.toggle('open');
+  btn.textContent=open?'&#9660; Close plotter':'&#9998; Open interactive plotter';
+  if(open){
+    var cp=document.getElementById('gr-plotter');
+    sizeCanvas(cp);
+    drawBlankGrid(cp);
+  }
+}
+
+function setTool(t){
+  plotTool=t;
+  document.getElementById('tool-draw').classList.toggle('active-tool',t==='draw');
+  document.getElementById('tool-erase').classList.toggle('active-tool',t==='erase');
+}
+
+function clearPlotter(){
+  var cp=document.getElementById('gr-plotter');
+  sizeCanvas(cp);
+  drawBlankGrid(cp);
+}
+
+function plotterPos(canvas,e){
+  var rect=canvas.getBoundingClientRect();
+  var src=e.touches?e.touches[0]:e;
+  return{x:src.clientX-rect.left, y:src.clientY-rect.top};
+}
+
+function initPlotter(){
+  var c=document.getElementById('gr-plotter');
+  function start(e){
+    e.preventDefault();
+    plotDrawing=true;
+    var p=plotterPos(c,e);
+    plotLastX=p.x;plotLastY=p.y;
+  }
+  function move(e){
+    e.preventDefault();
+    if(!plotDrawing)return;
+    var p=plotterPos(c,e);
+    var ctx=c.getContext('2d');
+    var dpr=window.devicePixelRatio||1;
+    if(plotTool==='erase'){
+      ctx.clearRect((p.x-12)*dpr,(p.y-12)*dpr,24*dpr,24*dpr);
+      // redraw grid under erased area — simpler: just repaint grid then replay strokes
+      // For simplicity, erase does a small white rectangle
+      ctx.fillStyle=getColors().bg;
+      ctx.fillRect((p.x-12)*dpr,(p.y-12)*dpr,24*dpr,24*dpr);
+    } else {
+      ctx.strokeStyle='#e05030';
+      ctx.lineWidth=2.2*dpr;
+      ctx.lineCap='round';
+      ctx.lineJoin='round';
+      ctx.beginPath();
+      ctx.moveTo(plotLastX*dpr,plotLastY*dpr);
+      ctx.lineTo(p.x*dpr,p.y*dpr);
+      ctx.stroke();
+    }
+    plotLastX=p.x;plotLastY=p.y;
+  }
+  function end(){plotDrawing=false;plotLastX=null;plotLastY=null;}
+  c.addEventListener('mousedown',start);
+  c.addEventListener('mousemove',move);
+  c.addEventListener('mouseup',end);
+  c.addEventListener('mouseleave',end);
+  c.addEventListener('touchstart',start,{passive:false});
+  c.addEventListener('touchmove',move,{passive:false});
+  c.addEventListener('touchend',end);
+}
+
+// ── Grade / stats ─────────────────────────────────────────────────────
+function grade(ok){
+  total++;if(ok){correct++;streak++;}else{streak=0;}
+  updateStats();
+  document.getElementById(mode==='identify'?'id-grade':'gr-grade').style.display='none';
+  var card=document.getElementById(mode==='identify'?'id-card':'gr-card');
+  card.classList.add(ok?'flash-g':'flash-r');
+  setTimeout(function(){card.classList.remove('flash-g','flash-r');},450);
+}
+function resetStats(){correct=0;total=0;streak=0;updateStats();}
+function updateStats(){
+  document.getElementById('sc').textContent=correct;
+  document.getElementById('sa').textContent=total;
+  document.getElementById('ss').textContent=streak;
+  document.getElementById('sp').textContent=total===0?'\u2014':Math.round(correct/total*100)+'%';
+}
+
+// ── Controls ──────────────────────────────────────────────────────────
+function togglePill(el,group){
+  var key = el.dataset.fn||el.dataset.feat;
+  var store = group==='fns'?fns:feats;
+  var cls = group==='fns'?'fn':'feat';
+  if(store[key]){
+    if(Object.keys(store).length===1)return;
+    delete store[key];el.classList.remove('on');
+  } else {
+    store[key]=1;el.classList.add('on');
+  }
+}
+
+function setUnit(u){
+  unit=u;
+  document.getElementById('u-deg').classList.toggle('on',u==='deg');
+  document.getElementById('u-rad').classList.toggle('on',u==='rad');
+  nextQ();
+}
+
+function setMode(m){
+  mode=m;
+  document.querySelectorAll('.tab').forEach(function(t,i){
+    t.classList.toggle('active',(i===0&&m==='identify')||(i===1&&m==='graph'));
+  });
+  document.getElementById('mode-identify').style.display=m==='identify'?'':'none';
+  document.getElementById('mode-graph').style.display=m==='graph'?'':'none';
+  nextQ();
+}
+
+// ── Next question ─────────────────────────────────────────────────────
+function nextQ(){
+  revealed=false;
+  generateQ();
+
+  if(mode==='identify'){
+    document.getElementById('id-cover').style.display='';
+    document.getElementById('id-answer').style.display='none';
+    document.getElementById('id-grade').style.display='none';
+    // defer draw until layout is ready
+    requestAnimationFrame(function(){requestAnimationFrame(drawIdentify);});
+  } else {
+    document.getElementById('gr-cover').style.display='';
+    document.getElementById('gr-answer').style.display='none';
+    document.getElementById('gr-grade').style.display='none';
+    var sec=document.getElementById('plotter-section');
+    sec.classList.remove('open');
+    document.getElementById('plotter-toggle').textContent='&#9998; Open interactive plotter';
+    requestAnimationFrame(function(){requestAnimationFrame(drawGraphMode);});
+  }
+}
+
+// ── Redraw on resize ──────────────────────────────────────────────────
+var resizeTimer;
+window.addEventListener('resize',function(){
+  clearTimeout(resizeTimer);
+  resizeTimer=setTimeout(function(){
+    if(mode==='identify') drawIdentify();
+    else drawGraphMode();
+  },120);
+});
+
+// ── Init ──────────────────────────────────────────────────────────────
+initPlotter();
+nextQ();
+</script>
+</body>
+</html>

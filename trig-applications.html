@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trig Applications</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<style>
+  :root {
+    --ocean:    #0e4f6b;
+    --ferris:   #5a1a7a;
+    --temp:     #7a3a00;
+    --sound:    #1a5a2a;
+    --bike:     #6b1a2a;
+
+    --ocean-light:  #e0f3fa;
+    --ferris-light: #f3e5ff;
+    --temp-light:   #fff3e0;
+    --sound-light:  #e5f5e8;
+    --bike-light:   #fce8ec;
+
+    --ocean-mid:    #b8dff0;
+    --ferris-mid:   #d9b8f0;
+    --temp-mid:     #f5d8a0;
+    --sound-mid:    #b8e8c0;
+    --bike-mid:     #f0b8c4;
+
+    --ink: #1a1a2e;
+    --muted: #5a5a72;
+    --paper: #faf9f6;
+    --card: #ffffff;
+    --shadow: 0 2px 8px rgba(0,0,0,.06), 0 8px 32px rgba(0,0,0,.08);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    padding: 0 0 80px;
+  }
+
+  /* ── Header ── */
+  .page-header {
+    background: var(--ink);
+    color: white;
+    padding: 48px 48px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+  .page-header::before {
+    content: 'sin cos tan';
+    position: absolute;
+    right: -20px; top: -10px;
+    font-size: 120px;
+    font-family: 'DM Serif Display', serif;
+    opacity: .04;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+  .page-header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2.4rem;
+    font-weight: 400;
+    letter-spacing: -.5px;
+    margin-bottom: 6px;
+  }
+  .page-header p {
+    font-size: .95rem;
+    opacity: .65;
+    font-weight: 400;
+  }
+  .unit-badges {
+    display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap;
+  }
+  .unit-badge {
+    font-size: 11px; font-weight: 600; letter-spacing: .6px; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 4px; border: 1px solid rgba(255,255,255,.2);
+    color: rgba(255,255,255,.8);
+  }
+
+  /* ── Nav bar ── */
+  .nav-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: white;
+    border-top: 1px solid #e8e8e8;
+    display: flex; align-items: center; justify-content: center;
+    gap: 20px; padding: 12px 24px;
+    z-index: 100;
+    box-shadow: 0 -4px 20px rgba(0,0,0,.08);
+  }
+  .nav-btn {
+    padding: 9px 28px; border-radius: 6px; border: none;
+    font-family: 'DM Sans', sans-serif; font-size: .9rem; font-weight: 600;
+    cursor: pointer; transition: all .18s;
+  }
+  .nav-btn.prev { background: #f0f0f0; color: var(--ink); }
+  .nav-btn.prev:hover { background: #e4e4e4; }
+  .nav-btn.next { background: var(--ink); color: white; }
+  .nav-btn.next:hover { background: #2e2e4a; }
+  .nav-btn:disabled { opacity: .3; cursor: not-allowed; }
+  .slide-counter { font-size: .9rem; font-weight: 500; color: var(--muted); min-width: 80px; text-align: center; }
+
+  /* ── Slide ── */
+  .slide { display: none; max-width: 860px; margin: 0 auto; padding: 40px 32px 0; }
+  .slide.active { display: block; }
+
+  .problem-header {
+    display: flex; align-items: flex-start; gap: 16px; margin-bottom: 28px;
+  }
+  .problem-number {
+    width: 48px; height: 48px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Serif Display', serif; font-size: 1.5rem; font-weight: 400; color: white;
+  }
+  .problem-meta { flex: 1; }
+  .problem-title {
+    font-family: 'DM Serif Display', serif; font-size: 1.6rem; font-weight: 400;
+    letter-spacing: -.3px; line-height: 1.2; margin-bottom: 4px;
+  }
+  .problem-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag {
+    font-size: 11px; font-weight: 600; letter-spacing: .5px; text-transform: uppercase;
+    padding: 3px 8px; border-radius: 4px;
+  }
+
+  .scenario-box {
+    border-radius: 10px; padding: 20px 24px; margin-bottom: 28px;
+    border-left: 4px solid;
+    line-height: 1.75;
+  }
+  .scenario-box p { font-size: .97rem; }
+  .scenario-box strong { font-weight: 600; }
+
+  /* ── Parts ── */
+  .parts { display: flex; flex-direction: column; gap: 16px; }
+  .part {
+    background: var(--card);
+    border: 1px solid #eaeaea;
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .part-question {
+    padding: 18px 22px;
+    display: flex; align-items: flex-start; gap: 14px;
+    cursor: default;
+  }
+  .part-label {
+    width: 30px; height: 30px; border-radius: 6px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: .8rem; font-weight: 700; color: white;
+  }
+  .part-text { flex: 1; font-size: .96rem; line-height: 1.65; padding-top: 4px; }
+
+  .reveal-btn {
+    display: flex; align-items: center; gap: 8px;
+    width: calc(100% - 44px); margin: 0 22px 16px;
+    padding: 9px 16px; border-radius: 7px; border: none;
+    font-family: 'DM Sans', sans-serif; font-size: .85rem; font-weight: 600;
+    cursor: pointer; transition: all .2s;
+    background: #f5f5f5; color: var(--muted);
+  }
+  .reveal-btn:hover { background: #ebebeb; color: var(--ink); }
+  .reveal-btn.open { color: white; }
+  .reveal-btn .arrow { transition: transform .25s; display: inline-block; font-size: .7rem; }
+  .reveal-btn.open .arrow { transform: rotate(90deg); }
+
+  .answer-box {
+    margin: 0 22px 18px;
+    border-radius: 8px; padding: 0 18px;
+    max-height: 0; overflow: hidden;
+    transition: max-height .45s ease, padding .3s ease;
+    border-left: 3px solid;
+  }
+  .answer-box.open { max-height: 2000px; padding: 16px 18px; }
+
+  .answer-box p { font-size: .93rem; line-height: 1.75; margin-bottom: 8px; }
+  .answer-box p:last-child { margin-bottom: 0; }
+  .answer-box .result {
+    display: inline-block; font-weight: 700; font-size: 1rem;
+    padding: 2px 10px; border-radius: 5px; margin-top: 4px;
+  }
+  .answer-box ul { padding-left: 20px; }
+  .answer-box li { font-size: .93rem; line-height: 1.75; margin-bottom: 4px; }
+
+  /* Slide-specific colors */
+  .s1 .problem-number, .s1 .part-label { background: var(--ocean); }
+  .s1 .scenario-box { background: var(--ocean-light); border-color: var(--ocean); }
+  .s1 .reveal-btn.open { background: var(--ocean); }
+  .s1 .answer-box { background: var(--ocean-light); border-color: var(--ocean-mid); }
+  .s1 .answer-box .result { background: var(--ocean-mid); color: var(--ocean); }
+  .s1 .tag { background: var(--ocean-light); color: var(--ocean); }
+
+  .s2 .problem-number, .s2 .part-label { background: var(--ferris); }
+  .s2 .scenario-box { background: var(--ferris-light); border-color: var(--ferris); }
+  .s2 .reveal-btn.open { background: var(--ferris); }
+  .s2 .answer-box { background: var(--ferris-light); border-color: var(--ferris-mid); }
+  .s2 .answer-box .result { background: var(--ferris-mid); color: var(--ferris); }
+  .s2 .tag { background: var(--ferris-light); color: var(--ferris); }
+
+  .s3 .problem-number, .s3 .part-label { background: var(--temp); }
+  .s3 .scenario-box { background: var(--temp-light); border-color: var(--temp); }
+  .s3 .reveal-btn.open { background: var(--temp); }
+  .s3 .answer-box { background: var(--temp-light); border-color: var(--temp-mid); }
+  .s3 .answer-box .result { background: var(--temp-mid); color: var(--temp); }
+  .s3 .tag { background: var(--temp-light); color: var(--temp); }
+
+  .s4 .problem-number, .s4 .part-label { background: var(--sound); }
+  .s4 .scenario-box { background: var(--sound-light); border-color: var(--sound); }
+  .s4 .reveal-btn.open { background: var(--sound); }
+  .s4 .answer-box { background: var(--sound-light); border-color: var(--sound-mid); }
+  .s4 .answer-box .result { background: var(--sound-mid); color: var(--sound); }
+  .s4 .tag { background: var(--sound-light); color: var(--sound); }
+
+  .s5 .problem-number, .s5 .part-label { background: var(--bike); }
+  .s5 .scenario-box { background: var(--bike-light); border-color: var(--bike); }
+  .s5 .reveal-btn.open { background: var(--bike); }
+  .s5 .answer-box { background: var(--bike-light); border-color: var(--bike-mid); }
+  .s5 .answer-box .result { background: var(--bike-mid); color: var(--bike); }
+  .s5 .tag { background: var(--bike-light); color: var(--bike); }
+
+  @media(max-width:600px){
+    .page-header { padding: 32px 24px 24px; }
+    .slide { padding: 28px 16px 0; }
+    .problem-title { font-size: 1.3rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Trig Applications</h1>
+  <p>Mid-level problems — write the equation, then evaluate at specific values.</p>
+  <div class="unit-badges">
+    <span class="unit-badge">No phase shift</span>
+    <span class="unit-badge">Degrees &amp; Radians</span>
+    <span class="unit-badge">5 problems</span>
+  </div>
+</div>
+
+<!-- ══ SLIDE 1: Ocean Tides ══ -->
+<div class="slide active s1" id="slide-1">
+  <div class="problem-header">
+    <div class="problem-number">1</div>
+    <div class="problem-meta">
+      <div class="problem-title">Ocean Tides</div>
+      <div class="problem-tags">
+        <span class="tag">Degrees</span>
+        <span class="tag">Cosine</span>
+        <span class="tag">Environment</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="scenario-box">
+    <p>The water depth at a harbour entrance follows a sinusoidal pattern. At <strong>high tide</strong> the depth is <strong>12 metres</strong>, and at <strong>low tide</strong> it is <strong>4 metres</strong>. One complete tidal cycle takes <strong>12 hours</strong>. High tide occurs at \(t = 0\).</p>
+  </div>
+
+  <div class="parts">
+
+    <div class="part">
+      <div class="part-question">
+        <div class="part-label">a</div>
+        <div class="part-text">Write a cosine equation of the form \(y = A\cos(Bt) + D\) that models the water depth \(y\) (in metres) as a function of time \(t\) (in hours).</div>
+      </div>
+      <button class="reveal-btn" onclick="toggle('t1a',this)"><span class="arrow">▶</span> Show Answer</button>
+      <div class="answer-box" id="t1a">
+        <p><strong>Amplitude:</strong> \(A = \dfrac{12 - 4}{2} = 4\) m</p>
+        <p><strong>Midline:</strong> \(D = \dfrac{12 + 4}{2} = 8\) m</p>
+        <p><strong>Period</strong> \(= 12\) hrs, so \(B = \dfrac{360°}{12} = 30°\) per hour</p>
+        <p>Cosine starts at a maximum — perfect since high tide is at \(t = 0\).</p>
+        <p class="result">\(y = 4\cos(30t) + 8\)</p>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-question">
+        <div class="part-label">b</div>
+        <div class="part-text">Find the water depth at \(t = 3\) hours.</div>
+      </div>
+      <button class="reveal-btn" onclick="toggle('t1b',this)"><span class="arrow">▶</span> Show Answer</button>
+      <div class="answer-box" id="t1b">
+        <p>\(y = 4\cos(30 \times 3) + 8 = 4\cos(90°) + 8\)</p>
+        <p>\(y = 4(0) + 8\)</p>
+        <p class="result">\(y = 8\) metres (at the midline — halfway between high and low tide)</p>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-question">
+        <div class="part-label">c</div>
+        <div class="part-text">A boat needs at least 6 metres of water to dock safely. Is it safe to enter at \(t = 9\) hours? Show your work.</div>
+      </div>
+      <button class="reveal-btn" onclick="toggle('t1c',this)"><span class="arrow">▶</span> Show Answer</button>
+      <div class="answer-box" id="t1c">
+        <p>\(y = 4\cos(30 \times 9) + 8 = 4\cos(270°) + 8\)</p>
+        <p>\(y = 4(0) + 8 = 8\) metres</p>
+        <p class="result">Yes — 8 m &gt; 6 m, so it is safe to enter at \(t = 9\) hours.</p>
+        <p style="margin-top:8px; font-size:.88rem; color:var(--muted)">💡 Note: the minimum depth is 4 m (at \(t = 6\) hrs). Checking \(t=9\) is back at the midline rising toward high tide.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ SLIDE 2: Ferris Wheel ══ -->
+<div class="slide s2" id="slide-2">
+  <div class="problem-header">
+    <div class="problem-number">2</div>
+    <div class="problem-meta">
+      <div class="problem-title">Ferris Wheel</div>
+      <div class="problem-tags">
+        <span class="tag">Radians</span>
+        <span class="tag">Sine</span>
+        <span class="tag">Physics</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="scenario-box">
+    <p>A Ferris wheel has a <strong>diameter of 20 metres</strong> and its centre sits <strong>13 metres above the ground</strong>. The wheel completes <strong>one full revolution every 40 seconds</strong>. A rider starts at the centre height moving upward at \(t = 0\).</p>
+  </div>
+
+  <div class="parts">
+
+    <div class="part">
+      <div class="part-question">
+        <div class="part-label">a</div>
+        <div class="part-text">Write a sine equation of the form \(y = A\sin(Bt) + D\) modelling the rider's height \(y\) (in metres) above the ground.</div>
+      </div>
+      <button class="reveal-btn" onclick="toggle('t2a',this)"><span class="arrow">▶</span> Show Answer</button>
+      <div class="answer-box" id="t2a">
+        <p><strong>Amplitude:</strong> \(A = \dfrac{20}{2} = 10\) m (radius of wheel)</p>
+        <p><strong>Midline:</strong> \(D = 13\) m (height of centre)</p>
+        <p><strong>Period</strong> \(= 40\) s, so \(B = \dfrac{2\pi}{40} = \dfrac{\pi}{20}\)</p>
+        <p>Sine starts at 0 moving upward — matches the starting condition.</p>
+        <p class="result">\(y = 10\sin\!\left(\dfrac{\pi}{20}\,t\right) + 13\)</p>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-question">
+        <div class="part-label">b</div>
+        <div class="part-text">Find the rider's height at \(t = 10\) seconds.</div>
+      </div>
+      <button class="reveal-btn" onclick="toggle('t2b',this)"><span class="arrow">▶</span> Show Answer</button>
+      <div class="answer-box" id="t2b">
+        <p>\(y = 10\sin\!\left(\dfrac{\pi}{20} \times 10\right) + 13 = 10\sin\!\left(\dfrac{\pi}{2}\right) + 13\)</p>
+        <p>\(y = 10(1) + 13\)</p>
+        <p class="result">\(y = 23\) metres — the maximum height (top of the wheel)</p>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-question">
+        <div class="part-label">c</div>
+        <div class="part-text">What is the maximum height, and at what time does it first occur?</div>
+      </div>
+      <button class="reveal-btn" onclick="toggle('t2c',this)"><span class="arrow">▶</span> Show Answer</button>
+      <div class="answer-box" id="t2c">
+        <p><strong>Maximum height</strong> \(= D + A = 13 + 10 = 23\) metres</p>
+        <p>Sine reaches its maximum when its argument \(= \dfrac{\pi}{2}\):</p>
+        <p>\(\dfrac{\pi}{20}\,t = \dfrac{\pi}{2} \implies t = 10\) seconds</p>
+        <p class="result">Maximum height of 23 m first occurs at \(t = 10\) seconds.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ SLIDE 3: Temperature ══ -->
+<div class="slide s3" id="slide-3">
+  <div class="problem-header">
+    <div class="problem-number">3</div>
+    <div class="problem-meta">
+      <div class="problem-title">Monthly Temperature</div>
+      <div class="problem-tags">
+        <span class="tag">Degrees</span>
+        <span class="tag">Cosine</span>
+        <span class="tag">Weather</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="scenario-box">
+    <p>A city's average monthly temperature oscillates sinusoidally. The <strong>highest average is 32°C in July (month 7)</strong> and the <strong>lowest is 4°C in January (month 1)</strong>. The period is <strong>12 months</strong>. Let \(m = 1\) represent January (\(t = 0\) in your model).</p>
+  </div>
+
+  <div class="parts">
+
+    <div class="part">
+      <div class="part-question">
+        <div class="part-label">a</div>
+        <div class="part-text">Identify the amplitude, midline, and period. Write a cosine equation modelling temperature \(T\) as a function of month offset \(t\) (where \(t = 0\) is January).</div>
+      </div>
+      <button class="reveal-btn" onclick="toggle('t3a',this)"><span class="arrow">▶</span> Show Answer</button>
+      <div class="answer-box" id="t3a">
+        <p><strong>Amplitude:</strong> \(A = \dfrac{32 - 4}{2} = 14\)°C</p>
+        <p><strong>Midline:</strong> \(D = \dfrac{32 + 4}{2} = 18\)°C</p>
+        <p><strong>Period</strong> \(= 12\) months, so \(B = \dfrac{360°}{12} = 30°\) per month</p>
+        <p>January is the minimum, so use \(-\cos\) (cosine reflected starts at a minimum):</p>
+        <p class="result">\(T = -14\cos(30t) + 18\)</p>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-question">
+        <div class="part-label">b</div>
+        <div class="part-text">Use your equation to estimate the average temperature in April (\(t = 3\)).</div>
+      </div>
+      <button class="reveal-btn" onclick="toggle('t3b',this)"><span class="arrow">▶</span> Show Answer</button>
+      <div class="answer-box" id="t3b">
+        <p>\(T = -14\cos(30 \times 3) + 18 = -14\cos(90°) + 18\)</p>
+        <p>\(T = -14(0) + 18\)</p>
+        <p class="result">\(T = 18\)°C — the midline temperature (spring equinox halfway point)</p>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-question">
+        <div class="part-label">c</div>
+        <div class="part-text">Set up the inequality for when \(T > 25\)°C. Which months are above 25°C? (Use your graph or evaluate key months.)</div>
+      </div>
+      <button class="reveal-btn" onclick="toggle('t3c',this)"><span class="arrow">▶</span> Show Answer</button>
+      <div class="answer-box" id="t3c">
+        <p>We need \(-14\cos(30t) + 18 > 25\), i.e. \(-14\cos(30t) > 7\), i.e. \(\cos(30t) < -\tfrac{1}{2}\).</p>
+        <p>Evaluating key months:</p>
+        <ul>
+          <li>\(t=4\) (May): \(T = -14\cos(120°)+18 = 7+18 = 25\)°C — right at the boundary</li>
+          <li>\(t=5\) (June): \(T = -14\cos(150°)+18 \approx 12.1+18 = 30.1\)°C ✓</li>
+          <li>\(t=6\) (July): \(T = 32\)°C ✓</li>
+          <li>\(t=7\) (Aug): \(T \approx 30.1\)°C ✓</li>
+          <li>\(t=8\) (Sep): \(T = 25\)°C — right at the boundary</li>
+        </ul>
+        <p class="result">Temperatures exceed 25°C during approximately <strong>June, July, and August</strong>.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ SLIDE 4: Sound Wave ══ -->
+<div class="slide s4" id="slide-4">
+  <div class="problem-header">
+    <div class="problem-number">4</div>
+    <div class="problem-meta">
+      <div class="problem-title">Sound Wave</div>
+      <div class="problem-tags">
+        <span class="tag">Radians</span>
+        <span class="tag">Sine</span>
+        <span class="tag">Physics</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="scenario-box">
+    <p>A tuning fork produces a pure tone. The <strong>maximum pressure variation is 0.03 Pa</strong> above and below a baseline of 0 Pa. The frequency is <strong>440 Hz</strong> (440 cycles per second), giving a period of \(\dfrac{1}{440}\) seconds.</p>
+  </div>
+
+  <div class="parts">
+
+    <div class="part">
+      <div class="part-question">
+        <div class="part-label">a</div>
+        <div class="part-text">Write a sine equation of the form \(y = A\sin(Bt)\) modelling the pressure variation \(y\) (in Pa) as a function of time \(t\) (in seconds). Leave \(B\) in terms of \(\pi\).</div>
+      </div>
+      <button class="reveal-btn" onclick="toggle('t4a',this)"><span class="arrow">▶</span> Show Answer</button>
+      <div class="answer-box" id="t4a">
+        <p><strong>Amplitude:</strong> \(A = 0.03\) Pa</p>
+        <p><strong>Midline:</strong> \(D = 0\) (baseline is zero)</p>
+        <p><strong>Period</strong> \(= \dfrac{1}{440}\) s, so \(B = \dfrac{2\pi}{1/440} = 880\pi\)</p>
+        <p class="result">\(y = 0.03\sin(880\pi t)\)</p>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-question">
+        <div class="part-label">b</div>
+        <div class="part-text">Evaluate the pressure at \(t = \dfrac{1}{880}\) seconds and explain what this value tells you about the wave at that moment.</div>
+      </div>
+      <button class="reveal-btn" onclick="toggle('t4b',this)"><span class="arrow">▶</span> Show Answer</button>
+      <div class="answer-box" id="t4b">
+        <p>\(y = 0.03\sin\!\left(880\pi \cdot \dfrac{1}{880}\right) = 0.03\sin(\pi)\)</p>
+        <p>\(y = 0.03 \times 0 = 0\) Pa</p>
+        <p class="result">\(y = 0\) Pa — the wave has completed exactly half a cycle and is back at the baseline, passing through zero on its way to negative pressure.</p>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-question">
+        <div class="part-label">c</div>
+        <div class="part-text">What is the pressure at \(t = \dfrac{1}{1760}\) seconds? What point in the cycle does this represent?</div>
+      </div>
+      <button class="reveal-btn" onclick="toggle('t4c',this)"><span class="arrow">▶</span> Show Answer</button>
+      <div class="answer-box" id="t4c">
+        <p>\(y = 0.03\sin\!\left(880\pi \cdot \dfrac{1}{1760}\right) = 0.03\sin\!\left(\dfrac{\pi}{2}\right)\)</p>
+        <p>\(y = 0.03 \times 1 = 0.03\) Pa</p>
+        <p class="result">\(y = 0.03\) Pa — this is the <strong>maximum pressure</strong>, occurring at exactly one quarter of the way through the cycle (the peak of the wave).</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══ SLIDE 5: Bicycle Wheel ══ -->
+<div class="slide s5" id="slide-5">
+  <div class="problem-header">
+    <div class="problem-number">5</div>
+    <div class="problem-meta">
+      <div class="problem-title">Bicycle Wheel</div>
+      <div class="problem-tags">
+        <span class="tag">Radians</span>
+        <span class="tag">Cosine</span>
+        <span class="tag">Everyday Life</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="scenario-box">
+    <p>A reflector is attached to a bicycle spoke, <strong>30 cm from the centre</strong> of the wheel. The wheel's centre sits <strong>35 cm above the ground</strong>. The wheel completes <strong>one full rotation every 2 seconds</strong>. The reflector starts at its <strong>highest point</strong> at \(t = 0\).</p>
+  </div>
+
+  <div class="parts">
+
+    <div class="part">
+      <div class="part-question">
+        <div class="part-label">a</div>
+        <div class="part-text">Write a cosine equation of the form \(y = A\cos(Bt) + D\) modelling the reflector's height \(y\) (in cm) above the ground.</div>
+      </div>
+      <button class="reveal-btn" onclick="toggle('t5a',this)"><span class="arrow">▶</span> Show Answer</button>
+      <div class="answer-box" id="t5a">
+        <p><strong>Amplitude:</strong> \(A = 30\) cm (distance from centre)</p>
+        <p><strong>Midline:</strong> \(D = 35\) cm (height of wheel centre)</p>
+        <p><strong>Period</strong> \(= 2\) s, so \(B = \dfrac{2\pi}{2} = \pi\)</p>
+        <p>Cosine starts at its maximum — matches the reflector starting at the top.</p>
+        <p class="result">\(y = 30\cos(\pi t) + 35\)</p>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-question">
+        <div class="part-label">b</div>
+        <div class="part-text">Find the reflector's height at \(t = 0.5\) seconds.</div>
+      </div>
+      <button class="reveal-btn" onclick="toggle('t5b',this)"><span class="arrow">▶</span> Show Answer</button>
+      <div class="answer-box" id="t5b">
+        <p>\(y = 30\cos(\pi \times 0.5) + 35 = 30\cos\!\left(\dfrac{\pi}{2}\right) + 35\)</p>
+        <p>\(y = 30(0) + 35\)</p>
+        <p class="result">\(y = 35\) cm — the reflector is at the centre height, level with the wheel's axle, passing through the midline on its way down.</p>
+      </div>
+    </div>
+
+    <div class="part">
+      <div class="part-question">
+        <div class="part-label">c</div>
+        <div class="part-text">Find the reflector's height at \(t = 1.5\) seconds and describe what position on the wheel this corresponds to.</div>
+      </div>
+      <button class="reveal-btn" onclick="toggle('t5c',this)"><span class="arrow">▶</span> Show Answer</button>
+      <div class="answer-box" id="t5c">
+        <p>\(y = 30\cos(\pi \times 1.5) + 35 = 30\cos\!\left(\dfrac{3\pi}{2}\right) + 35\)</p>
+        <p>\(y = 30(0) + 35\)</p>
+        <p class="result">\(y = 35\) cm — again at the midline (axle height), but now the reflector is on its way <strong>back up</strong> toward the top, having passed through the bottom at \(t = 1\) s.</p>
+        <p style="margin-top:8px; font-size:.88rem; color:var(--muted)">💡 Minimum height \(= 35 - 30 = 5\) cm occurs at \(t = 1\) s (bottom of wheel, just above ground).</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Nav -->
+<div class="nav-bar">
+  <button class="nav-btn prev" id="prev-btn" onclick="changeslide(-1)" disabled>← Prev</button>
+  <span class="slide-counter" id="counter">1 / 5</span>
+  <button class="nav-btn next" id="next-btn" onclick="changeslide(1)">Next →</button>
+</div>
+
+<script>
+var cur = 1, total = 5;
+
+function changeslide(dir) {
+  document.getElementById('slide-'+cur).classList.remove('active');
+  cur = Math.max(1, Math.min(total, cur+dir));
+  document.getElementById('slide-'+cur).classList.add('active');
+  document.getElementById('counter').textContent = cur+' / '+total;
+  document.getElementById('prev-btn').disabled = cur===1;
+  document.getElementById('next-btn').disabled = cur===total;
+  window.scrollTo({top:0, behavior:'smooth'});
+  if(window.MathJax) MathJax.typesetPromise();
+}
+
+function toggle(id, btn) {
+  var box = document.getElementById(id);
+  var open = box.classList.toggle('open');
+  btn.classList.toggle('open', open);
+  btn.querySelector('.arrow').style.transform = open ? 'rotate(90deg)' : '';
+  btn.childNodes[1].textContent = open ? ' Hide Answer' : ' Show Answer';
+  if(open && window.MathJax) MathJax.typesetPromise([box]);
+}
+
+document.addEventListener('keydown', function(e) {
+  if(e.key==='ArrowRight'||e.key==='ArrowDown') changeslide(1);
+  if(e.key==='ArrowLeft'||e.key==='ArrowUp') changeslide(-1);
+});
+
+window.addEventListener('load', function(){
+  if(window.MathJax) MathJax.typesetPromise();
+});
+</script>
+</body>
+</html>
